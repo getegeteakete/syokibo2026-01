@@ -291,6 +291,9 @@ export default function App() {
   const [appStep, setAppStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const [adminPrompt, setAdminPrompt] = useState("");
+  const [appInvestmentItems, setAppInvestmentItems] = useState([
+    { category: "建物", name: "", amount: "", note: "" },
+  ]);
   const [expandedSection, setExpandedSection] = useState(null);
   const [appExpandedSection, setAppExpandedSection] = useState(0);
   const [registeredData, setRegisteredData] = useState(null);
@@ -387,6 +390,15 @@ export default function App() {
 
   const generatePrompt = useCallback(() => {
     const st = multiSelects.growth_strategy || [];
+    const investmentLines = appInvestmentItems
+      .filter(it => (it.name && it.name.trim()) || (it.amount && String(it.amount).trim()))
+      .map(
+        it =>
+          `- 区分:${it.category} 金額:${it.amount || "（金額未入力）"}万円 内容:${it.name || "（名称未入力）"}${
+            it.note ? ` 備考:${it.note}` : ""
+          }`
+      )
+      .join("\n");
     return `# 中小企業成長加速化補助金 申請書・100億宣言文 作成依頼
 
 ## 企業基本情報
@@ -423,6 +435,7 @@ export default function App() {
 - ソフトウェア費：${appData.app_inv_software ? (Number(appData.app_inv_software)/10000).toFixed(1) + "億" : "？"}
 - コア投資合計：${appInvCore > 0 ? (appInvCore/10000).toFixed(1) + "億" : "？"} ${appInvOk ? "✅（1億円超）" : "⚠（1億円未満の可能性）"}
 - 投資内容の詳細：${hearingData.investment_detail || appData.app_inv_summary || "（未入力）"}
+${investmentLines ? `\n### 投資内訳（電子申請形式イメージ）\n${investmentLines}` : ""}
 
 ## 賃上げ計画
 - 現在の1人当たり給与：${appData.app_wage_current || hearingData.avg_salary || "？"}万/年
@@ -693,12 +706,281 @@ ${hearingData.vision || "（未入力）"}
                 <div style={{ textAlign: "right", marginTop: 12 }}><Btn primary disabled={!allCriticalPassed} onClick={() => { setAppStep(1); addLog("要件チェック通過"); }}>{allCriticalPassed ? "申請入力へ →" : `必須 ${reqCriticalPass}/6`}</Btn></div>
               </div>}
 
-              {/* Step 1: Form */}
-              {appStep === 1 && <div>
-                <Card accent={C.accent + "44"}><div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>申請情報入力</div><div style={{ fontSize: 12, color: C.textMuted }}><span style={{ color: C.danger }}>*</span> 必須 ・ <span style={{ fontSize: 9, background: C.warnLight, color: C.warn, padding: "1px 4px", borderRadius: 2 }}>機密</span> 暗号化対象</div></Card>
-                {APPLICATION_SECTIONS.map((section, si) => <div key={si} style={{ marginBottom: 10 }}><button onClick={() => setAppExpandedSection(appExpandedSection === si ? null : si)} style={{ width: "100%", background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 6, padding: "10px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", color: C.text, fontSize: 12, fontWeight: 600, fontFamily: font, marginBottom: appExpandedSection === si ? 6 : 0 }}><span>{section.section}</span><span style={{ fontSize: 10, color: C.textLight }}>{section.fields.filter(f => appData[f.id]).length}/{section.fields.length} {appExpandedSection === si ? "▲" : "▼"}</span></button>{appExpandedSection === si && <Card>{section.fields.map(f => renderFormField(f, appData, handleAppInput, appErrors))}</Card>}</div>)}
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}><Btn onClick={() => setAppStep(0)}>← 要件チェック</Btn><Btn primary onClick={() => { if (validateAppForm()) { setAppStep(2); addLog("申請入力完了"); } }}>確認画面へ →</Btn></div>
-              </div>}
+            {/* Step 1: Form */}
+            {appStep === 1 && (
+              <div>
+                <Card accent={C.accent + "44"}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>申請情報入力</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>
+                    <span style={{ color: C.danger }}>*</span> 必須 ・{" "}
+                    <span style={{ fontSize: 9, background: C.warnLight, color: C.warn, padding: "1px 4px", borderRadius: 2 }}>
+                      機密
+                    </span>{" "}
+                    暗号化対象
+                  </div>
+                </Card>
+
+                {APPLICATION_SECTIONS.map((section, si) => (
+                  <div key={si} style={{ marginBottom: 10 }}>
+                    <button
+                      onClick={() => setAppExpandedSection(appExpandedSection === si ? null : si)}
+                      style={{
+                        width: "100%",
+                        background: C.bgCard,
+                        border: `1px solid ${C.border}`,
+                        borderRadius: 6,
+                        padding: "10px 14px",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        color: C.text,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: font,
+                        marginBottom: appExpandedSection === si ? 6 : 0,
+                      }}
+                    >
+                      <span>{section.section}</span>
+                      <span style={{ fontSize: 10, color: C.textLight }}>
+                        {section.fields.filter(f => appData[f.id]).length}/{section.fields.length}{" "}
+                        {appExpandedSection === si ? "▲" : "▼"}
+                      </span>
+                    </button>
+                    {appExpandedSection === si && (
+                      <Card>
+                        {section.fields.map(f => renderFormField(f, appData, handleAppInput, appErrors))}
+
+                        {section.section === "投資計画（税抜）" && (
+                          <div style={{ marginTop: 8 }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: C.text, marginBottom: 4 }}>
+                              投資計画の内訳（電子申請イメージ・任意）
+                            </div>
+                            <div
+                              style={{
+                                border: `1px solid ${C.borderLight}`,
+                                borderRadius: 6,
+                                overflowX: "auto",
+                                background: C.bgInput,
+                              }}
+                            >
+                              <table
+                                style={{
+                                  width: "100%",
+                                  borderCollapse: "collapse",
+                                  fontSize: 11,
+                                  minWidth: 520,
+                                }}
+                              >
+                                <thead>
+                                  <tr style={{ background: C.bgCard }}>
+                                    {["区分", "設備・ソフト名／内容", "金額（万円・税抜）", "備考", ""].map((h, idx) => (
+                                      <th
+                                        key={idx}
+                                        style={{
+                                          borderBottom: `1px solid ${C.borderLight}`,
+                                          padding: "6px 8px",
+                                          textAlign: idx === 4 ? "center" : "left",
+                                          color: C.textMuted,
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        {h}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {appInvestmentItems.map((row, idx) => (
+                                    <tr key={idx} style={{ background: idx % 2 === 0 ? C.bgInput : C.bgCard }}>
+                                      <td style={{ padding: "4px 6px", borderBottom: `1px solid ${C.borderLight}` }}>
+                                        <select
+                                          value={row.category}
+                                          onChange={e => {
+                                            const v = e.target.value;
+                                            setAppInvestmentItems(prev => {
+                                              const next = [...prev];
+                                              next[idx] = { ...next[idx], category: v };
+                                              return next;
+                                            });
+                                          }}
+                                          style={{
+                                            width: "100%",
+                                            padding: "4px 6px",
+                                            borderRadius: 4,
+                                            border: `1px solid ${C.border}`,
+                                            background: "#fff",
+                                            fontSize: 11,
+                                            fontFamily: font,
+                                          }}
+                                        >
+                                          {["建物", "機械装置", "ソフトウェア", "その他"].map(opt => (
+                                            <option key={opt} value={opt}>
+                                              {opt}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </td>
+                                      <td style={{ padding: "4px 6px", borderBottom: `1px solid ${C.borderLight}` }}>
+                                        <input
+                                          type="text"
+                                          value={row.name}
+                                          onChange={e => {
+                                            const v = e.target.value;
+                                            setAppInvestmentItems(prev => {
+                                              const next = [...prev];
+                                              next[idx] = { ...next[idx], name: v };
+                                              return next;
+                                            });
+                                          }}
+                                          placeholder="例）新工場建屋／自動化ライン一式 など"
+                                          style={{
+                                            width: "100%",
+                                            padding: "4px 6px",
+                                            borderRadius: 4,
+                                            border: `1px solid ${C.border}`,
+                                            fontSize: 11,
+                                            fontFamily: font,
+                                            background: "#fff",
+                                          }}
+                                        />
+                                      </td>
+                                      <td
+                                        style={{
+                                          padding: "4px 6px",
+                                          borderBottom: `1px solid ${C.borderLight}`,
+                                          width: 110,
+                                        }}
+                                      >
+                                        <input
+                                          type="number"
+                                          value={row.amount}
+                                          onChange={e => {
+                                            const v = e.target.value;
+                                            setAppInvestmentItems(prev => {
+                                              const next = [...prev];
+                                              next[idx] = { ...next[idx], amount: v };
+                                              return next;
+                                            });
+                                          }}
+                                          placeholder="例）30000"
+                                          style={{
+                                            width: "100%",
+                                            padding: "4px 6px",
+                                            borderRadius: 4,
+                                            border: `1px solid ${C.border}`,
+                                            fontSize: 11,
+                                            fontFamily: font,
+                                            background: "#fff",
+                                            textAlign: "right",
+                                          }}
+                                        />
+                                      </td>
+                                      <td style={{ padding: "4px 6px", borderBottom: `1px solid ${C.borderLight}` }}>
+                                        <input
+                                          type="text"
+                                          value={row.note}
+                                          onChange={e => {
+                                            const v = e.target.value;
+                                            setAppInvestmentItems(prev => {
+                                              const next = [...prev];
+                                              next[idx] = { ...next[idx], note: v };
+                                              return next;
+                                            });
+                                          }}
+                                          placeholder="任意：更新理由、仕様、メーカー名など"
+                                          style={{
+                                            width: "100%",
+                                            padding: "4px 6px",
+                                            borderRadius: 4,
+                                            border: `1px solid ${C.border}`,
+                                            fontSize: 11,
+                                            fontFamily: font,
+                                            background: "#fff",
+                                          }}
+                                        />
+                                      </td>
+                                      <td
+                                        style={{
+                                          padding: "4px 6px",
+                                          borderBottom: `1px solid ${C.borderLight}`,
+                                          textAlign: "center",
+                                          width: 42,
+                                        }}
+                                      >
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setAppInvestmentItems(prev => {
+                                              if (prev.length === 1) return prev;
+                                              return prev.filter((_, i) => i !== idx);
+                                            });
+                                          }}
+                                          style={{
+                                            border: "none",
+                                            background: "none",
+                                            color: C.textLight,
+                                            cursor: appInvestmentItems.length === 1 ? "default" : "pointer",
+                                            fontSize: 12,
+                                          }}
+                                          disabled={appInvestmentItems.length === 1}
+                                        >
+                                          ✕
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div style={{ marginTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAppInvestmentItems(prev => [
+                                    ...prev,
+                                    { category: "機械装置", name: "", amount: "", note: "" },
+                                  ])
+                                }
+                                style={{
+                                  padding: "5px 10px",
+                                  borderRadius: 4,
+                                  border: `1px solid ${C.border}`,
+                                  background: C.bgCard,
+                                  fontSize: 11,
+                                  fontFamily: font,
+                                  cursor: "pointer",
+                                  color: C.text,
+                                }}
+                              >
+                                ＋ 行を追加
+                              </button>
+                              <div style={{ fontSize: 10, color: C.textLight }}>
+                                ※ 電子申請画面の「経費内訳」イメージです（任意入力）。
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    )}
+                  </div>
+                ))}
+
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}>
+                  <Btn onClick={() => setAppStep(0)}>← 要件チェック</Btn>
+                  <Btn
+                    primary
+                    onClick={() => {
+                      if (validateAppForm()) {
+                        setAppStep(2);
+                        addLog("申請入力完了");
+                      }
+                    }}
+                  >
+                    確認画面へ →
+                  </Btn>
+                </div>
+              </div>
+            )}
 
               {/* Step 2: Confirm */}
               {appStep === 2 && <div>
