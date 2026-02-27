@@ -510,6 +510,9 @@ ${hearingData.vision || "（未入力）"}
               <div style={{ background: C.bgInput, borderRadius: 5, padding: "8px 10px" }}><div style={{ fontSize: 10, color: C.textLight }}>サポート</div><div style={{ fontSize: 11, color: C.text, fontFamily: "monospace" }}>support / support2026</div></div>
             </div>
           </div>
+          <div style={{ marginTop: 12, textAlign: "center" }}>
+            <div style={{ fontSize: 10, color: C.textLight }}>最終情報更新日: {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" })}</div>
+          </div>
         </div>
       </div>
     );
