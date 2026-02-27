@@ -280,6 +280,8 @@ export default function App() {
   // ─── Page Router ───
   const [currentPage, setCurrentPage] = useState("dashboard"); // dashboard | guide
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
+  const [isTablet, setIsTablet] = useState(typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024);
 
   // ─── Dashboard State ───
   const [activeTab, setActiveTab] = useState(0);
@@ -335,6 +337,16 @@ export default function App() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [currentPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // ─── Auth Handlers ───
   const handleLogin = () => {
@@ -505,7 +517,7 @@ ${hearingData.vision || "（未入力）"}
           </Card>
           <div style={{ marginTop: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: C.textMuted, marginBottom: 8 }}>デモ用アカウント</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 8 }}>
               <div style={{ background: C.bgInput, borderRadius: 5, padding: "8px 10px" }}><div style={{ fontSize: 10, color: C.textLight }}>申請者</div><div style={{ fontSize: 11, color: C.text, fontFamily: "monospace" }}>applicant / apply2026</div></div>
               <div style={{ background: C.bgInput, borderRadius: 5, padding: "8px 10px" }}><div style={{ fontSize: 10, color: C.textLight }}>サポート</div><div style={{ fontSize: 11, color: C.text, fontFamily: "monospace" }}>support / support2026</div></div>
             </div>
@@ -527,73 +539,111 @@ ${hearingData.vision || "（未入力）"}
 
       {/* Row 1: Brand bar (dark) */}
       <div style={{ background: C.headerBg }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 30, height: 30, borderRadius: 6, background: C.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: "#fff" }}>百</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.headerText }}>100億宣言 申請サポート</div>
-            <div style={{ fontSize: 9, color: "#6a6560", marginLeft: 6 }}>第2次公募｜締切 2026/3/26</div>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 auto", minWidth: 0 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 6, background: C.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: "#fff", flexShrink: 0 }}>百</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.headerText, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>100億宣言 申請サポート</div>
+            <div style={{ fontSize: 9, color: "#6a6560", marginLeft: 4, display: isMobile ? "none" : "block" }}>第2次公募｜締切 2026/3/26</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 10, color: "#a09a90" }}>{userRole === "support" ? "サポート担当" : "申請者"}</span>
-            <span style={{ fontSize: 10, color: sessionMin < 5 ? "#e07a5f" : "#7a7570" }}>残り {sessionMin}:{String(sessionSec).padStart(2, "0")}</span>
-            <button onClick={() => handleLogout()} style={{ padding: "4px 12px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.12)", background: "none", color: "#999", fontSize: 10, cursor: "pointer", fontFamily: font }}>ログアウト</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, color: "#a09a90", display: isMobile ? "none" : "block" }}>{userRole === "support" ? "サポート担当" : "申請者"}</span>
+            <span style={{ fontSize: 10, color: sessionMin < 5 ? "#e07a5f" : "#7a7570", whiteSpace: "nowrap" }}>残り {sessionMin}:{String(sessionSec).padStart(2, "0")}</span>
+            <button onClick={() => handleLogout()} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.12)", background: "none", color: "#999", fontSize: 10, cursor: "pointer", fontFamily: font, whiteSpace: "nowrap" }}>ログアウト</button>
           </div>
         </div>
       </div>
 
       {/* Row 2: Main Navigation (white/light — highly visible) */}
       <div style={{ background: "#fff", borderBottom: `2px solid ${C.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "stretch", gap: 0 }}>
-
-          {/* Nav: 申請管理 */}
-          <button onClick={() => { setCurrentPage("dashboard"); window.scrollTo({ top: 0 }); }} style={{
-            padding: "16px 28px", background: currentPage === "dashboard" ? C.accentPale : "transparent",
-            border: "none", cursor: "pointer", fontFamily: font,
-            borderBottom: currentPage === "dashboard" ? `4px solid ${C.accent}` : "4px solid transparent",
-            display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s",
-          }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: currentPage === "dashboard" ? C.accent : "#e8e5df", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={currentPage === "dashboard" ? "#fff" : "#888"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg>
-            </div>
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: currentPage === "dashboard" ? C.accent : "#666", letterSpacing: 0.5 }}>申請管理画面</div>
-              <div style={{ fontSize: 10, color: currentPage === "dashboard" ? C.accentLight : "#aaa", marginTop: 2 }}>スケジュール・チェックリスト・ヒアリング・申請入力</div>
-            </div>
-          </button>
-
-          {/* Separator */}
-          <div style={{ width: 1, background: C.borderLight, margin: "10px 0" }} />
-
-          {/* Nav: 制度説明 */}
-          <button onClick={() => { setCurrentPage("guide"); window.scrollTo({ top: 0 }); }} style={{
-            padding: "16px 28px", background: currentPage === "guide" ? C.accentPale : "transparent",
-            border: "none", cursor: "pointer", fontFamily: font,
-            borderBottom: currentPage === "guide" ? `4px solid ${C.accent}` : "4px solid transparent",
-            display: "flex", alignItems: "center", gap: 14, transition: "all 0.15s",
-          }}>
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: currentPage === "guide" ? C.accent : "#e8e5df", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={currentPage === "guide" ? "#fff" : "#888"} strokeWidth="2" strokeLinecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <div style={{ textAlign: "left" }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: currentPage === "guide" ? C.accent : "#666", letterSpacing: 0.5 }}>制度説明ガイド</div>
-              <div style={{ fontSize: 10, color: currentPage === "guide" ? C.accentLight : "#aaa", marginTop: 2 }}>100億宣言と補助金の完全解説・FAQ・相談窓口</div>
-            </div>
-          </button>
-
-          {/* Right: Quick Stats */}
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16, paddingRight: 4 }}>
-            {[
-              { v: "14日", l: "宣言期限", c: "#d35c3a", bg: "#fdf0ec" },
-              { v: "27日", l: "補助金締切", c: "#a07420", bg: "#faf4e6" },
-              { v: `${progress}%`, l: "準備進捗", c: "#3a7a52", bg: "#ebf5ee" },
-            ].map((d, i) => (
-              <div key={i} style={{ textAlign: "center", background: d.bg, borderRadius: 6, padding: "6px 12px", minWidth: 56 }}>
-                <div style={{ fontSize: 16, fontWeight: 900, color: d.c, lineHeight: 1.2 }}>{d.v}</div>
-                <div style={{ fontSize: 8, color: d.c, opacity: 0.7, marginTop: 1 }}>{d.l}</div>
-              </div>
-            ))}
+        {/* Mobile: Hamburger Menu */}
+        {isMobile && (
+          <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <button onClick={() => setMobileMenu(!mobileMenu)} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.text} strokeWidth="2" strokeLinecap="round">
+                {mobileMenu ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
+              </svg>
+            </button>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{currentPage === "dashboard" ? "申請管理画面" : "制度説明ガイド"}</div>
+            <div style={{ width: 24 }} />
           </div>
-        </div>
+        )}
+
+        {/* Mobile Menu Dropdown */}
+        {isMobile && mobileMenu && (
+          <div style={{ background: "#fff", borderTop: `1px solid ${C.border}`, padding: "8px 0" }}>
+            <button onClick={() => { setCurrentPage("dashboard"); setMobileMenu(false); window.scrollTo({ top: 0 }); }} style={{ width: "100%", padding: "12px 16px", background: currentPage === "dashboard" ? C.accentPale : "transparent", border: "none", cursor: "pointer", fontFamily: font, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={currentPage === "dashboard" ? C.accent : "#888"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 600, color: currentPage === "dashboard" ? C.accent : C.text }}>申請管理画面</span>
+            </button>
+            <button onClick={() => { setCurrentPage("guide"); setMobileMenu(false); window.scrollTo({ top: 0 }); }} style={{ width: "100%", padding: "12px 16px", background: currentPage === "guide" ? C.accentPale : "transparent", border: "none", cursor: "pointer", fontFamily: font, textAlign: "left", display: "flex", alignItems: "center", gap: 12 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={currentPage === "guide" ? C.accent : "#888"} strokeWidth="2" strokeLinecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 600, color: currentPage === "guide" ? C.accent : C.text }}>制度説明ガイド</span>
+            </button>
+            <div style={{ padding: "12px 16px", display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[
+                { v: "14日", l: "宣言期限", c: "#d35c3a", bg: "#fdf0ec" },
+                { v: "27日", l: "補助金締切", c: "#a07420", bg: "#faf4e6" },
+                { v: `${progress}%`, l: "準備進捗", c: "#3a7a52", bg: "#ebf5ee" },
+              ].map((d, i) => (
+                <div key={i} style={{ textAlign: "center", background: d.bg, borderRadius: 6, padding: "6px 10px", flex: "1 1 0", minWidth: 70 }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: d.c, lineHeight: 1.2 }}>{d.v}</div>
+                  <div style={{ fontSize: 9, color: d.c, opacity: 0.7, marginTop: 1 }}>{d.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Desktop: Full Navigation */}
+        {!isMobile && (
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 12px", display: "flex", alignItems: "stretch", gap: 0, flexWrap: "wrap" }}>
+            <button onClick={() => { setCurrentPage("dashboard"); window.scrollTo({ top: 0 }); }} style={{
+              padding: "12px 16px", background: currentPage === "dashboard" ? C.accentPale : "transparent",
+              border: "none", cursor: "pointer", fontFamily: font,
+              borderBottom: currentPage === "dashboard" ? `4px solid ${C.accent}` : "4px solid transparent",
+              display: "flex", alignItems: "center", gap: 10, transition: "all 0.15s", flex: "1 1 auto", minWidth: 0,
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: currentPage === "dashboard" ? C.accent : "#e8e5df", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={currentPage === "dashboard" ? "#fff" : "#888"} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg>
+              </div>
+              <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: currentPage === "dashboard" ? C.accent : "#666", letterSpacing: 0.3, whiteSpace: "nowrap" }}>申請管理画面</div>
+                <div style={{ fontSize: 9, color: currentPage === "dashboard" ? C.accentLight : "#aaa", marginTop: 1, display: isTablet || isMobile ? "none" : "block" }}>スケジュール・チェックリスト・ヒアリング・申請入力</div>
+              </div>
+            </button>
+
+            <div style={{ width: 1, background: C.borderLight, margin: "8px 0", display: isTablet || isMobile ? "none" : "block" }} />
+
+            <button onClick={() => { setCurrentPage("guide"); window.scrollTo({ top: 0 }); }} style={{
+              padding: "12px 16px", background: currentPage === "guide" ? C.accentPale : "transparent",
+              border: "none", cursor: "pointer", fontFamily: font,
+              borderBottom: currentPage === "guide" ? `4px solid ${C.accent}` : "4px solid transparent",
+              display: "flex", alignItems: "center", gap: 10, transition: "all 0.15s", flex: "1 1 auto", minWidth: 0,
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: currentPage === "guide" ? C.accent : "#e8e5df", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={currentPage === "guide" ? "#fff" : "#888"} strokeWidth="2" strokeLinecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: currentPage === "guide" ? C.accent : "#666", letterSpacing: 0.3, whiteSpace: "nowrap" }}>制度説明ガイド</div>
+                <div style={{ fontSize: 9, color: currentPage === "guide" ? C.accentLight : "#aaa", marginTop: 1, display: isTablet || isMobile ? "none" : "block" }}>100億宣言と補助金の完全解説・FAQ・相談窓口</div>
+              </div>
+            </button>
+
+            {/* Right: Quick Stats */}
+            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, paddingRight: 4, flexShrink: 0 }}>
+              {[
+                { v: "14日", l: "宣言期限", c: "#d35c3a", bg: "#fdf0ec" },
+                { v: "27日", l: "補助金締切", c: "#a07420", bg: "#faf4e6" },
+                { v: `${progress}%`, l: "準備進捗", c: "#3a7a52", bg: "#ebf5ee" },
+              ].map((d, i) => (
+                <div key={i} style={{ textAlign: "center", background: d.bg, borderRadius: 6, padding: "6px 10px", minWidth: isTablet || isMobile ? 50 : 56, display: (isTablet || isMobile) && i === 2 ? "none" : "block" }}>
+                  <div style={{ fontSize: isTablet || isMobile ? 14 : 16, fontWeight: 900, color: d.c, lineHeight: 1.2 }}>{d.v}</div>
+                  <div style={{ fontSize: 8, color: d.c, opacity: 0.7, marginTop: 1 }}>{d.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -611,15 +661,15 @@ ${hearingData.vision || "（未入力）"}
       {currentPage === "dashboard" && (
         <div>
           {/* Dashboard Tabs */}
-          <div style={{ background: C.bgCard, borderBottom: `1px solid ${C.border}`, overflowX: "auto" }}>
-            <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", minWidth: 600 }}>
+          <div style={{ background: C.bgCard, borderBottom: `1px solid ${C.border}`, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", minWidth: isMobile ? "100%" : 600 }}>
               {TABS.map((tab, i) => (
-                <button key={i} onClick={() => setActiveTab(i)} style={{ flex: 1, padding: "11px 4px", background: "none", border: "none", borderBottom: activeTab === i ? `2px solid ${C.accent}` : "2px solid transparent", color: activeTab === i ? C.accent : C.textLight, fontSize: 11.5, fontWeight: activeTab === i ? 700 : 400, cursor: "pointer", fontFamily: font, whiteSpace: "nowrap" }}>{tab}</button>
+                <button key={i} onClick={() => setActiveTab(i)} style={{ flex: isMobile ? "0 0 auto" : 1, padding: isMobile ? "12px 16px" : "11px 4px", background: "none", border: "none", borderBottom: activeTab === i ? `2px solid ${C.accent}` : "2px solid transparent", color: activeTab === i ? C.accent : C.textLight, fontSize: isMobile ? 12 : 11.5, fontWeight: activeTab === i ? 700 : 400, cursor: "pointer", fontFamily: font, whiteSpace: "nowrap", minWidth: isMobile ? 100 : "auto" }}>{tab}</button>
               ))}
             </div>
           </div>
 
-          <div style={{ maxWidth: 1000, margin: "0 auto", padding: "20px 16px 60px" }}>
+          <div style={{ maxWidth: 1000, margin: "0 auto", padding: isMobile ? "16px 12px 60px" : "20px 16px 60px" }}>
             {/* Tab 0: Schedule */}
             {activeTab === 0 && <div>
               <Callout type="danger" title="重要な注意事項">・締切は <b>15:00</b>（第1次17:00より前倒し）<br/>・100億宣言は補助金の<b>前提条件</b>（事前公表必須）<br/>・宣言公表に2〜3週間 → <b>3/13</b>までに申請<br/>・GビズIDプライム未取得 → <b>最優先確認</b></Callout>
@@ -697,12 +747,12 @@ ${hearingData.vision || "（未入力）"}
               {/* Step 0: Requirements */}
               {appStep === 0 && <div>
                 <Card accent={C.accent + "44"}><div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>申請要件チェック</div><div style={{ fontSize: 12, color: C.textMuted }}>必須6項目クリアで次へ進めます</div></Card>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10, marginBottom: 18 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))", gap: 10, marginBottom: 18 }}>
                   <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>売上高</div><input type="number" placeholder="250000（=25億）" value={appData.app_sales_y1 || ""} onChange={e => handleAppInput("app_sales_y1", e.target.value)} style={{ width: "100%", padding: "8px 10px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 12, fontFamily: font, boxSizing: "border-box", outline: "none" }} />{appData.app_sales_y1 && <div style={{ marginTop: 4, fontSize: 10, color: appSalesOk ? C.success : C.danger }}>{(Number(appData.app_sales_y1)/10000).toFixed(1)}億円 {appSalesOk ? "✓" : "✗"}</div>}</Card>
                   <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>企業区分</div><select value={appData.app_sme_category || ""} onChange={e => handleAppInput("app_sme_category", e.target.value)} style={{ width: "100%", padding: "8px 10px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 12, fontFamily: font, outline: "none" }}><option value="">選択</option>{["製造業","卸売業","小売業","サービス業"].map(o => <option key={o} value={o}>{o}</option>)}</select></Card>
                   <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>GビズID</div><select value={appData.app_gbiz_status || ""} onChange={e => handleAppInput("app_gbiz_status", e.target.value)} style={{ width: "100%", padding: "8px 10px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 12, fontFamily: font, outline: "none" }}><option value="">選択</option>{["取得済み・利用可能","申請中（発行待ち）","未申請"].map(o => <option key={o} value={o}>{o}</option>)}</select>{appData.app_gbiz_status === "未申請" && <div style={{ marginTop: 4, fontSize: 10, color: C.danger }}>即日申請が必要</div>}</Card>
                   <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>100億宣言</div><select value={appData.app_declaration_status || ""} onChange={e => handleAppInput("app_declaration_status", e.target.value)} style={{ width: "100%", padding: "8px 10px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 12, fontFamily: font, outline: "none" }}><option value="">選択</option>{["公表済み（ポータル掲載済み）","申請済み（公表待ち）","未申請（これから申請）"].map(o => <option key={o} value={o}>{o}</option>)}</select></Card>
-                  <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>投資額（税抜）</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>{[["建物","app_inv_building"],["機械","app_inv_equipment"],["SW","app_inv_software"]].map(([l,k]) => <div key={k}><div style={{ fontSize: 9, color: C.textLight }}>{l}（万円）</div><input type="number" placeholder="0" value={appData[k] || ""} onChange={e => handleAppInput(k, e.target.value)} style={{ width: "100%", padding: "6px 8px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 11, fontFamily: font, boxSizing: "border-box", outline: "none" }} /></div>)}</div>{appInvCore > 0 && <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: appInvOk ? C.success : C.danger }}>{(appInvCore/10000).toFixed(1)}億 {appInvOk ? "✓" : "✗"}</div>}</Card>
+                  <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>投資額（税抜）</div><div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 4 }}>{[["建物","app_inv_building"],["機械","app_inv_equipment"],["SW","app_inv_software"]].map(([l,k]) => <div key={k}><div style={{ fontSize: 9, color: C.textLight }}>{l}（万円）</div><input type="number" placeholder="0" value={appData[k] || ""} onChange={e => handleAppInput(k, e.target.value)} style={{ width: "100%", padding: "6px 8px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 11, fontFamily: font, boxSizing: "border-box", outline: "none" }} /></div>)}</div>{appInvCore > 0 && <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: appInvOk ? C.success : C.danger }}>{(appInvCore/10000).toFixed(1)}億 {appInvOk ? "✓" : "✗"}</div>}</Card>
                   <Card><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>賃上げ（年率4.5%）</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}><div><div style={{ fontSize: 9, color: C.textLight }}>現在（万/年）</div><input type="number" placeholder="420" value={appData.app_wage_current || ""} onChange={e => handleAppInput("app_wage_current", e.target.value)} style={{ width: "100%", padding: "6px 8px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 11, fontFamily: font, boxSizing: "border-box", outline: "none" }} /></div><div><div style={{ fontSize: 9, color: C.textLight }}>3年後目標</div><input type="number" placeholder="479" value={appData.app_wage_y3 || ""} onChange={e => handleAppInput("app_wage_y3", e.target.value)} style={{ width: "100%", padding: "6px 8px", background: C.bgInput, border: `1px solid ${C.border}`, borderRadius: 4, color: C.text, fontSize: 11, fontFamily: font, boxSizing: "border-box", outline: "none" }} /></div></div>{appWageCurrent > 0 && appWageY3 > 0 && <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600, color: appWageOk ? C.success : C.danger }}>CAGR {appWageCAGR.toFixed(1)}% {appWageOk ? "✓" : "✗"}</div>}</Card>
                 </div>
                 <Card><div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>要件サマリー</div>{requirements.map((req, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < requirements.length - 1 ? `1px solid ${C.borderLight}` : "none" }}><StatusDot status={req.status} /><div style={{ flex: 1, fontSize: 12 }}>{req.label}</div><div style={{ fontSize: 10, color: C.textMuted, marginRight: 8 }}>{req.desc}</div><Badge status={req.status} /></div>)}</Card>
@@ -763,6 +813,7 @@ ${hearingData.vision || "（未入力）"}
                                 border: `1px solid ${C.borderLight}`,
                                 borderRadius: 6,
                                 overflowX: "auto",
+                                WebkitOverflowScrolling: "touch",
                                 background: C.bgInput,
                               }}
                             >
@@ -770,8 +821,8 @@ ${hearingData.vision || "（未入力）"}
                                 style={{
                                   width: "100%",
                                   borderCollapse: "collapse",
-                                  fontSize: 11,
-                                  minWidth: 520,
+                                  fontSize: isMobile ? 10 : 11,
+                                  minWidth: isMobile ? 480 : 520,
                                 }}
                               >
                                 <thead>
@@ -988,8 +1039,8 @@ ${hearingData.vision || "（未入力）"}
               {/* Step 2: Confirm */}
               {appStep === 2 && <div>
                 <Callout type="success" title="最終確認">機密項目はマスク表示。「表示」ボタンで確認可能です。</Callout>
-                {APPLICATION_SECTIONS.map((section, si) => <Card key={si} style={{ marginBottom: 10 }}><div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>{section.section}</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 14px" }}>{section.fields.map(f => <div key={f.id} style={{ padding: "3px 0" }}><div style={{ fontSize: 9, color: C.textLight }}>{f.label}</div><div style={{ fontSize: 11, fontWeight: 500 }}>{f.type === "file_check" ? (appData[f.id] ? "✓ 準備済み" : "— 未準備") : f.sensitive && !showSensitive[f.id] ? maskValue(appData[f.id]) : appData[f.id] ? (f.type === "number" ? Number(appData[f.id]).toLocaleString() : appData[f.id]) : "—"}{f.sensitive && appData[f.id] && <button onClick={() => { setShowSensitive(p => ({ ...p, [f.id]: !p[f.id] })); addLog("機密表示", f.label); }} style={{ marginLeft: 4, fontSize: 9, color: C.accent, background: "none", border: `1px solid ${C.accent}44`, borderRadius: 3, padding: "0 4px", cursor: "pointer", fontFamily: font }}>{showSensitive[f.id] ? "隠す" : "表示"}</button>}</div></div>)}</div></Card>)}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
+                {APPLICATION_SECTIONS.map((section, si) => <Card key={si} style={{ marginBottom: 10 }}><div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>{section.section}</div><div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? "8px" : "4px 14px" }}>{section.fields.map(f => <div key={f.id} style={{ padding: "3px 0" }}><div style={{ fontSize: 9, color: C.textLight }}>{f.label}</div><div style={{ fontSize: 11, fontWeight: 500 }}>{f.type === "file_check" ? (appData[f.id] ? "✓ 準備済み" : "— 未準備") : f.sensitive && !showSensitive[f.id] ? maskValue(appData[f.id]) : appData[f.id] ? (f.type === "number" ? Number(appData[f.id]).toLocaleString() : appData[f.id]) : "—"}{f.sensitive && appData[f.id] && <button onClick={() => { setShowSensitive(p => ({ ...p, [f.id]: !p[f.id] })); addLog("機密表示", f.label); }} style={{ marginLeft: 4, fontSize: 9, color: C.accent, background: "none", border: `1px solid ${C.accent}44`, borderRadius: 3, padding: "0 4px", cursor: "pointer", fontFamily: font }}>{showSensitive[f.id] ? "隠す" : "表示"}</button>}</div></div>)}</div></Card>)}
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
                   <Card style={{ textAlign: "center", padding: 10 }}><div style={{ fontSize: 9, color: C.textLight }}>コア投資額</div><div style={{ fontSize: 18, fontWeight: 800, color: C.accent }}>{(appInvCore/10000).toFixed(1)}億</div></Card>
                   <Card style={{ textAlign: "center", padding: 10 }}><div style={{ fontSize: 9, color: C.textLight }}>補助申請額</div><div style={{ fontSize: 18, fontWeight: 800, color: C.success }}>{(appSubsidy/10000).toFixed(1)}億</div></Card>
                   <Card style={{ textAlign: "center", padding: 10 }}><div style={{ fontSize: 9, color: C.textLight }}>賃上げCAGR</div><div style={{ fontSize: 18, fontWeight: 800, color: appWageOk ? C.success : C.danger }}>{appWageCAGR.toFixed(1)}%</div></Card>
@@ -1087,18 +1138,45 @@ ${hearingData.vision || "（未入力）"}
       {/* GUIDE PAGE                              */}
       {/* ═══════════════════════════════════════ */}
       {currentPage === "guide" && (
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", gap: 0, padding: "0 16px" }}>
-          {/* Sidebar */}
-          <nav style={{ width: 180, flexShrink: 0, position: "sticky", top: 120, height: "calc(100vh - 120px)", overflowY: "auto", padding: "16px 14px 16px 0", borderRight: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: C.textFaint, letterSpacing: 1.5, marginBottom: 10, paddingLeft: 10 }}>目次</div>
-            {guideSections.map(s => <button key={s.id} onClick={() => scrollTo(s.id)} style={{ display: "block", width: "100%", textAlign: "left", padding: "7px 10px", marginBottom: 1, background: activeGuideSection === s.id ? C.accentPale : "transparent", border: "none", borderRadius: 4, borderLeft: activeGuideSection === s.id ? `3px solid ${C.accent}` : "3px solid transparent", color: activeGuideSection === s.id ? C.accent : C.textMuted, fontSize: 11.5, fontWeight: activeGuideSection === s.id ? 700 : 400, cursor: "pointer", fontFamily: font }}>{s.label}</button>)}
-          </nav>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", gap: 0, padding: isMobile ? "0 12px" : "0 16px", flexDirection: isMobile ? "column" : "row" }}>
+          {/* Mobile: TOC Dropdown */}
+          {isMobile && (
+            <div style={{ position: "sticky", top: 0, zIndex: 40, background: C.bgCard, borderBottom: `1px solid ${C.border}`, padding: "12px", marginBottom: 12 }}>
+              <select
+                value={activeGuideSection}
+                onChange={e => scrollTo(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  background: C.bgInput,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontFamily: font,
+                  color: C.text,
+                  outline: "none",
+                }}
+              >
+                {guideSections.map(s => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Desktop: Sidebar */}
+          {!isMobile && (
+            <nav style={{ width: 180, flexShrink: 0, position: "sticky", top: 120, height: "calc(100vh - 120px)", overflowY: "auto", padding: "16px 14px 16px 0", borderRight: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.textFaint, letterSpacing: 1.5, marginBottom: 10, paddingLeft: 10 }}>目次</div>
+              {guideSections.map(s => <button key={s.id} onClick={() => scrollTo(s.id)} style={{ display: "block", width: "100%", textAlign: "left", padding: "7px 10px", marginBottom: 1, background: activeGuideSection === s.id ? C.accentPale : "transparent", border: "none", borderRadius: 4, borderLeft: activeGuideSection === s.id ? `3px solid ${C.accent}` : "3px solid transparent", color: activeGuideSection === s.id ? C.accent : C.textMuted, fontSize: 11.5, fontWeight: activeGuideSection === s.id ? 700 : 400, cursor: "pointer", fontFamily: font }}>{s.label}</button>)}
+            </nav>
+          )}
 
           {/* Guide Content */}
-          <main ref={guideRef} style={{ flex: 1, minWidth: 0, padding: "24px 0 60px 28px" }}>
+          <main ref={guideRef} style={{ flex: 1, minWidth: 0, padding: isMobile ? "16px 0 60px 0" : "24px 0 60px 28px" }}>
             {/* Overview */}
             <section data-section="overview" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>100億企業成長支援プロジェクトとは</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>100億企業成長支援プロジェクトとは</h2>
               <p style={{ fontSize: 13.5, color: C.text, lineHeight: 2, marginBottom: 16 }}>日本の中小企業政策は、従来の「存続支援」から<b>「成長・規模拡大支援」</b>へと大きく転換しています。その象徴が「100億企業成長支援プロジェクト」です。</p>
               <Card accent={C.gold + "44"} style={{ background: C.goldPale }}><div style={{ fontSize: 14, fontWeight: 700, color: C.gold, marginBottom: 6 }}>プロジェクトの目的</div><div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.9 }}>売上高<b>10億円〜100億円未満</b>の中小企業が、売上高100億円を超える<b>「中堅企業」</b>へ飛躍することを支援する国家プロジェクト。単なる補助金ではなく、経営者のマインドセット変革、大規模設備投資の促進、地域経済への波及効果を狙った重層的な支援体系です。</div></Card>
               <Callout type="info" title="なぜ「100億円」なのか？">売上高100億円規模の企業は、高い賃金水準の維持、輸出による外需獲得、協力会社への仕入れによる経済波及効果が極めて大きく、地域経済の「稼ぐ力」を牽引するエンジンとなります。</Callout>
@@ -1206,7 +1284,7 @@ ${hearingData.vision || "（未入力）"}
             {/* Contacts */}
             <section data-section="contacts" style={{ marginBottom: 24, scrollMarginTop: 130 }}>
               <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>相談窓口</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
                 {[
                   { org: "関東経済産業局 中小企業課", tel: "048-600-0332", desc: "100億宣言に関する相談" },
                   { org: "関東経済産業局 経営支援課", tel: "048-600-0334", desc: "補助金に関する相談" },
