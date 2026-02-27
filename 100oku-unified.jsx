@@ -276,6 +276,7 @@ export default function App() {
   const [appErrors, setAppErrors] = useState({});
   const [appStep, setAppStep] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [adminPrompt, setAdminPrompt] = useState("");
   const [expandedSection, setExpandedSection] = useState(null);
   const [appExpandedSection, setAppExpandedSection] = useState(0);
   const [registeredData, setRegisteredData] = useState(null);
@@ -374,10 +375,19 @@ export default function App() {
     const st = multiSelects.growth_strategy || [];
     return `# 中小企業成長加速化補助金 申請書作成依頼\n\n## 企業基本情報\n- 会社名：${hearingData.company_name || appData.app_company || "（未入力）"}\n- 代表者：${hearingData.representative || appData.app_representative || "（未入力）"}\n- 業種：${hearingData.industry || "（未入力）"}\n- 従業員数：${hearingData.employees || appData.app_employee_count || "?"}名\n- 売上高：${hearingData.current_sales ? hearingData.current_sales + "億" : appData.app_sales_y1 ? (Number(appData.app_sales_y1)/10000).toFixed(1) + "億" : "?"}\n\n## 成長戦略\n- 目標年：${hearingData.target_year || appData.app_target_year_achieve || "?"}\n- 戦略：${st.join("、") || "?"}\n- 市場：${hearingData.market || "?"}\n- 強み：${hearingData.competitive_advantage || "?"}\n- 課題：${hearingData.bottleneck || "?"}\n\n## 投資計画\n- 建物：${appData.app_inv_building ? (Number(appData.app_inv_building)/10000).toFixed(1)+"億" : "?"} / 機械：${appData.app_inv_equipment ? (Number(appData.app_inv_equipment)/10000).toFixed(1)+"億" : "?"} / SW：${appData.app_inv_software ? (Number(appData.app_inv_software)/10000).toFixed(1)+"億" : "?"}\n- 合計：${appInvCore > 0 ? (appInvCore/10000).toFixed(1)+"億" : "?"} ${appInvOk ? "✅" : "⚠"}\n- 内容：${hearingData.investment_detail || appData.app_inv_summary || "?"}\n\n## 賃上げ\n- 現在：${appData.app_wage_current || hearingData.avg_salary || "?"}万/年 → 3年後：${appData.app_wage_y3 || wageTarget || "?"}万/年（CAGR:${appWageCAGR > 0 ? appWageCAGR.toFixed(1) : "?"}%）\n\n## 経営者の想い\n${hearingData.vision || "?"}\n\n---\n作成物：1. 100億宣言書 2. 事業計画書（最大15枚）\n制度要件：補助率1/2、上限5億円、投資下限1億円（税抜）、賃上げ年率4.5%以上（役員除外）、プレゼン審査は経営者本人のみ`;
   }, [hearingData, appData, multiSelects, appInvCore, appInvOk, wageTarget, appWageCAGR]);
-  const copyPrompt = () => { navigator.clipboard.writeText(generatePrompt()); setCopied(true); setTimeout(() => setCopied(false), 2000); addLog("プロンプトコピー"); };
+  const copyPrompt = () => {
+    const text = adminPrompt && adminPrompt.trim().length > 0 ? adminPrompt : generatePrompt();
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    addLog("プロンプトコピー");
+  };
 
   const scrollTo = (id) => { const el = document.querySelector(`[data-section="${id}"]`); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
-  const TABS = userRole === "support" ? ["スケジュール","チェックリスト","ヒアリング","要件チェック・申請","AI申請書生成","サポートノート"] : ["スケジュール","チェックリスト","ヒアリング","要件チェック・申請","AI申請書生成"];
+  // 申請者にはAIプロンプト関連タブを表示しない
+  const TABS = userRole === "support"
+    ? ["スケジュール","チェックリスト","ヒアリング","要件チェック・申請","AI申請書生成（管理者専用）","サポートノート"]
+    : ["スケジュール","チェックリスト","ヒアリング","要件チェック・申請"];
   const sessionMin = Math.floor(sessionRemaining / 60000);
   const sessionSec = Math.floor((sessionRemaining % 60000) / 1000);
 
@@ -638,17 +648,71 @@ export default function App() {
                 <p style={{ fontSize: 12, color: C.textMuted, marginBottom: 20 }}>{registeredData?.registered_at}</p>
                 <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
                   <Btn primary onClick={exportJSON}>JSONダウンロード</Btn>
-                  <Btn onClick={() => setActiveTab(4)}>AI申請書生成へ</Btn>
+                  {userRole === "support" && <Btn onClick={() => setActiveTab(4)}>AI申請書生成へ</Btn>}
                   <Btn onClick={() => setAppStep(0)}>最初に戻る</Btn>
                 </div>
               </div>}
             </div>}
 
-            {/* Tab 4: AI Prompt */}
-            {activeTab === 4 && <div>
-              <Card accent={C.accent + "44"}><div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>AI申請書作成プロンプト</div><div style={{ fontSize: 12, color: C.textMuted }}>コピーしてAIに貼り付けてください</div></Card>
-              <div style={{ position: "relative" }}><Btn primary onClick={copyPrompt} style={{ position: "sticky", top: 70, zIndex: 10, float: "right" }}>{copied ? "✓ コピー完了" : "コピー"}</Btn><pre style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, fontSize: 11, lineHeight: 1.7, color: C.text, whiteSpace: "pre-wrap", wordBreak: "break-all", fontFamily: `${font}, monospace`, maxHeight: 500, overflow: "auto", clear: "both" }}>{generatePrompt()}</pre></div>
-            </div>}
+            {/* Tab 4: AI Prompt（管理者専用） */}
+            {userRole === "support" && activeTab === 4 && (
+              <div>
+                <Card accent={C.accent + "44"}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>AI申請書作成プロンプト（管理者専用）</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>
+                    下のテキストエリアに、AIに渡すプロンプトを自由に記入してください。申請者には表示されません。
+                    <br />
+                    右下のボタンから、ヒアリング内容を元にした雛形を挿入することもできます。
+                  </div>
+                </Card>
+                <Card>
+                  <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 11, color: C.textMuted }}>AI用プロンプト</span>
+                    <button
+                      type="button"
+                      onClick={() => setAdminPrompt(generatePrompt())}
+                      style={{
+                        fontSize: 10,
+                        padding: "4px 8px",
+                        borderRadius: 4,
+                        border: `1px solid ${C.border}`,
+                        background: C.bgInput,
+                        cursor: "pointer",
+                        fontFamily: font,
+                        color: C.textMuted,
+                      }}
+                    >
+                      雛形を挿入
+                    </button>
+                  </div>
+                  <textarea
+                    rows={14}
+                    value={adminPrompt}
+                    onChange={e => setAdminPrompt(e.target.value)}
+                    placeholder="ここにChatGPTなどに渡す指示文（プロンプト）を書いてください。企業情報や強調したいポイントなどを自由に加筆できます。"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      background: C.bgInput,
+                      border: `1px solid ${C.border}`,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontFamily: `${font}, monospace`,
+                      color: C.text,
+                      boxSizing: "border-box",
+                      resize: "vertical",
+                      lineHeight: 1.7,
+                    }}
+                  />
+                  <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 10, color: C.textLight }}>
+                      コピー対象: 入力済みプロンプト（未入力の場合は自動生成プロンプト）
+                    </span>
+                    <Btn primary onClick={copyPrompt}>{copied ? "✓ コピー完了" : "この内容をコピー"}</Btn>
+                  </div>
+                </Card>
+              </div>
+            )}
 
             {/* Tab 5: Support Notes */}
             {activeTab === 5 && userRole === "support" && <div>
