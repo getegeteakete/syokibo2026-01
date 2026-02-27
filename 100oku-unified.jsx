@@ -673,6 +673,16 @@ ${hearingData.vision || "（未入力）"}
             {/* Tab 0: Schedule */}
             {activeTab === 0 && <div>
               <Callout type="danger" title="重要な注意事項">・締切は <b>15:00</b>（第1次17:00より前倒し）<br/>・100億宣言は補助金の<b>前提条件</b>（事前公表必須）<br/>・宣言公表に2〜3週間 → <b>3/13</b>までに申請<br/>・GビズIDプライム未取得 → <b>最優先確認</b></Callout>
+              <div style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 6, color: C.accent, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  100億企業成長ポータル（公式サイト）
+                </a>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.goldPale, border: `1px solid ${C.gold}44`, borderRadius: 6, color: C.gold, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  公募要領・申請様式をダウンロード
+                </a>
+              </div>
               {SCHEDULE_DATA.map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 12, marginBottom: 2 }}>
                   <div style={{ width: 60, textAlign: "right", paddingTop: 12, flexShrink: 0, fontSize: 11, fontWeight: 600, color: item.status === "today" ? C.accent : item.deadline ? C.danger : C.textLight }}>{item.date}</div>
@@ -1184,7 +1194,13 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Structure */}
             <section data-section="structure" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>プロジェクトの全体構造</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>プロジェクトの全体構造</h2>
+              <div style={{ marginBottom: 16 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 6, color: C.accent, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  100億企業成長ポータル（公式サイト）を開く
+                </a>
+              </div>
               <div style={{ display: "flex", gap: 14, marginBottom: 20, flexWrap: "wrap" }}>
                 <Card style={{ flex: "1 1 260px", borderTop: `4px solid ${C.accent}` }}><div style={{ fontSize: 11, fontWeight: 700, color: C.accent, letterSpacing: 1, marginBottom: 4 }}>第1の柱</div><div style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>100億宣言</div><div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.8 }}>経営者が「売上高100億円を目指す」意志と戦略を公に宣言する制度。</div></Card>
                 <Card style={{ flex: "1 1 260px", borderTop: `4px solid ${C.gold}` }}><div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: 1, marginBottom: 4 }}>第2の柱</div><div style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>成長加速化補助金</div><div style={{ fontSize: 12.5, color: C.textMuted, lineHeight: 1.8 }}>最大5億円（補助率1/2）の大規模設備投資への資金支援。</div></Card>
@@ -1199,8 +1215,14 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Declaration */}
             <section data-section="declaration" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>100億宣言とは</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>100億宣言とは</h2>
               <p style={{ fontSize: 13, color: C.text, lineHeight: 1.9, marginBottom: 16 }}>100億宣言は、単なる事務手続きではなく、企業の将来ビジョンをステークホルダーに示す<b>公約</b>としての性格を持ちます。</p>
+              <div style={{ marginBottom: 16 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 6, color: C.accent, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  100億企業成長ポータル（公式サイト）を開く
+                </a>
+              </div>
               <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>宣言書に盛り込む5つの構成要素</div>
               {[
                 { t: "企業概要", d: "直近の売上高、従業員数、現在の事業ポートフォリオなど足元の立ち位置を明確に。" },
@@ -1213,7 +1235,13 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Subsidy */}
             <section data-section="subsidy" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>成長加速化補助金の詳細</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>成長加速化補助金の詳細</h2>
+              <div style={{ marginBottom: 16 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.goldPale, border: `1px solid ${C.gold}44`, borderRadius: 6, color: C.gold, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  公式サイトで公募要領・申請様式を確認
+                </a>
+              </div>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
                 {[{ v: "5億円", l: "補助上限" }, { v: "1/2", l: "補助率" }, { v: "1億円", l: "投資下限", c: C.danger }].map((s, i) => <div key={i} style={{ textAlign: "center", padding: "14px 12px", background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, flex: "1 1 120px" }}><div style={{ fontSize: 24, fontWeight: 900, color: s.c || C.accent }}>{s.v}</div><div style={{ fontSize: 11, fontWeight: 600, marginTop: 2 }}>{s.l}</div></div>)}
               </div>
@@ -1223,14 +1251,14 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Schedule */}
             <section data-section="schedule" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>スケジュール</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>スケジュール</h2>
               <Callout type="danger" title="第2次の変更">締切は<b>15:00</b>（第1次17:00から前倒し）。100億宣言の事前公表が必須条件に厳格化。</Callout>
               <p style={{ fontSize: 13, color: C.text, lineHeight: 1.9 }}>詳細なタイムラインは「申請管理」画面のスケジュールタブで確認できます。</p>
             </section>
 
             {/* Requirements */}
             <section data-section="requirements" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>申請要件</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>申請要件</h2>
               {[
                 { t: "中小企業であること", d: "業種ごとの資本金・従業員数の上限あり" },
                 { t: "売上高10億円以上100億円未満", d: "直近決算書の売上高が対象範囲内" },
@@ -1243,7 +1271,7 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Changes */}
             <section data-section="changes" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>第2次公募の変更点</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>第2次公募の変更点</h2>
               {[
                 { t: "賃上げ要件の統一・引き上げ", d: "全国一律「年平均4.5%以上」に統一。第1次は都道府県ごとに3.2%〜4.3%だった。未達で一部返還、直近年度割れで全額返還。", type: "danger" },
                 { t: "100億宣言の事前公表が必須に", d: "申請時点でポータルに公表されていることが必須。第1次では同時並行が可能だった。", type: "warn" },
@@ -1253,7 +1281,7 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Review */}
             <section data-section="review" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>審査のポイント</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>審査のポイント</h2>
               <p style={{ fontSize: 13, color: C.text, lineHeight: 1.9, marginBottom: 16 }}>第1次公募の採択倍率は<b style={{ color: C.danger }}>約6倍</b>。書面審査とプレゼン審査の二段構え。</p>
               <Card><div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>重視される3つの指標</div>{[
                 { t: "売上高投資比率", d: "収益規模に対してどれだけ大胆にリスクを取っているか", c: C.accent },
@@ -1264,14 +1292,20 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Tips */}
             <section data-section="tips" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>採択率を上げるコツ</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>採択率を上げるコツ</h2>
               <Callout type="danger" title="jGrantsの落とし穴">・締切直前はサーバー混雑。<b>3/25を実質的な締め切りに</b><br/>・ファイル名は半角英数推奨・容量制限あり</Callout>
               <Callout type="success" title="丸投げ厳禁">外部コンサルを起用する場合でも、計画を「自分の言葉で語れる」まで内面化してください。プレゼン審査で合否を分ける最大の要因です。</Callout>
             </section>
 
             {/* FAQ */}
             <section data-section="faq" style={{ marginBottom: 40, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>よくある質問</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>よくある質問</h2>
+              <div style={{ marginBottom: 16 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 6, color: C.accent, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  公式サイトの「よくあるご質問」も確認
+                </a>
+              </div>
               {faqData.map((faq, i) => <div key={i} style={{ marginBottom: 6 }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{ width: "100%", textAlign: "left", padding: "12px 16px", background: C.bgCard, border: `1px solid ${openFaq === i ? C.accent + "44" : C.border}`, borderRadius: openFaq === i ? "6px 6px 0 0" : 6, cursor: "pointer", fontFamily: font, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ display: "flex", gap: 8 }}><span style={{ color: C.accent, fontWeight: 800, fontSize: 13 }}>Q</span><span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.5 }}>{faq.q}</span></div>
@@ -1283,7 +1317,17 @@ ${hearingData.vision || "（未入力）"}
 
             {/* Contacts */}
             <section data-section="contacts" style={{ marginBottom: 24, scrollMarginTop: 130 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>相談窓口</h2>
+              <h2 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 16 }}>相談窓口</h2>
+              <div style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 6, color: C.accent, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  公式サイトのお問い合わせフォーム
+                </a>
+                <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", background: C.goldPale, border: `1px solid ${C.gold}44`, borderRadius: 6, color: C.gold, fontSize: 12, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  公式サイトの電話相談（0570-00-0835 / 0570-07-4153）
+                </a>
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
                 {[
                   { org: "関東経済産業局 中小企業課", tel: "048-600-0332", desc: "100億宣言に関する相談" },
@@ -1304,7 +1348,15 @@ ${hearingData.vision || "（未入力）"}
       {showScrollTop && <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ position: "fixed", bottom: 24, right: 24, zIndex: 100, width: 42, height: 42, borderRadius: "50%", background: C.accent, color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 2px 10px rgba(44,74,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3L3 10h4v5h4v-5h4L9 3z" fill="#fff" /></svg></button>}
 
       {/* Footer */}
-      <div style={{ borderTop: `1px solid ${C.border}`, padding: "10px 20px", textAlign: "center" }}><div style={{ fontSize: 9, color: C.textLight }}>ハッシュ認証 ・ セッション自動タイムアウト ・ 操作監査ログ ・ 機密項目マスク表示</div></div>
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: "10px 20px", textAlign: "center" }}>
+        <div style={{ marginBottom: 8 }}>
+          <a href="https://growth-100-oku.smrj.go.jp/" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", background: C.accentPale, border: `1px solid ${C.accent}44`, borderRadius: 4, color: C.accent, fontSize: 11, fontWeight: 600, textDecoration: "none", fontFamily: font }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            100億企業成長ポータル（公式サイト）
+          </a>
+        </div>
+        <div style={{ fontSize: 9, color: C.textLight }}>ハッシュ認証 ・ セッション自動タイムアウト ・ 操作監査ログ ・ 機密項目マスク表示</div>
+      </div>
     </div>
   );
 }
