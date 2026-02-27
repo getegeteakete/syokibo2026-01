@@ -94,6 +94,20 @@ const HEARING_FIELDS = [
     { id: "competitive_advantage", label: "自社の強み・独自性", type: "textarea", placeholder: "特許技術、長年の顧客基盤..." },
     { id: "bottleneck", label: "現在のボトルネック・課題", type: "textarea", placeholder: "生産能力の限界、人材不足..." },
   ]},
+  { section: "100億宣言の準備（詳細）", fields: [
+    { id: "declaration_summary", label: "100億宣言メッセージ（要約）", type: "textarea", placeholder: "3〜5行で、目指す姿や背景を要約..." },
+    { id: "declaration_keywords", label: "宣言に盛り込みたいキーワード", type: "textarea", placeholder: "例）地域No.1雇用、世界市場、高付加価値、サステナビリティ..." },
+    { id: "declaration_story_customers", label: "顧客にどんな価値を約束するか", type: "textarea", placeholder: "5年後に顧客からどう評価されていたいか..." },
+    { id: "declaration_story_employees", label: "従業員にどんな未来を見せたいか", type: "textarea", placeholder: "賃金水準、働き方、キャリア、教育など..." },
+    { id: "declaration_story_region", label: "地域・社会へのインパクト", type: "textarea", placeholder: "雇用創出、地元仕入れ、税収、技術継承など..." },
+    { id: "roadmap_3year", label: "3年後までの具体的マイルストーン", type: "textarea", placeholder: "売上・利益・投資・組織体制などの年次目標..." },
+    { id: "roadmap_5year", label: "5年後（100億達成時）の姿", type: "textarea", placeholder: "事業ポートフォリオ、拠点数、主力商品・サービス..." },
+    { id: "monthly_milestones", label: "今後12ヶ月の月次マイルストーン", type: "textarea", placeholder: "例）4月:宣言案作成／5月:社内合意／6月:宣言申請／..." },
+    { id: "weekly_routine", label: "経営陣の週間ルーティン", type: "textarea", placeholder: "毎週の会議・KPI確認・現場ラウンドなど、習慣化したいこと..." },
+    { id: "daily_routine", label: "日課・行動原則", type: "textarea", placeholder: "経営者として毎日実行したい確認事項・コミュニケーション..." },
+    { id: "declaration_risks", label: "100億宣言に伴う主なリスク", type: "textarea", placeholder: "需要変動、採用難、金利・為替、設備稼働率など..." },
+    { id: "declaration_risks_plan", label: "リスクへの対応方針（Bプラン）", type: "textarea", placeholder: "「こうなった場合はこうする」という代替案..." },
+  ]},
   { section: "投資計画", fields: [
     { id: "building_cost", label: "建物費（万円）", type: "number", placeholder: "30000" },
     { id: "equipment_cost", label: "機械装置費（万円）", type: "number", placeholder: "20000" },
@@ -373,7 +387,64 @@ export default function App() {
 
   const generatePrompt = useCallback(() => {
     const st = multiSelects.growth_strategy || [];
-    return `# 中小企業成長加速化補助金 申請書作成依頼\n\n## 企業基本情報\n- 会社名：${hearingData.company_name || appData.app_company || "（未入力）"}\n- 代表者：${hearingData.representative || appData.app_representative || "（未入力）"}\n- 業種：${hearingData.industry || "（未入力）"}\n- 従業員数：${hearingData.employees || appData.app_employee_count || "?"}名\n- 売上高：${hearingData.current_sales ? hearingData.current_sales + "億" : appData.app_sales_y1 ? (Number(appData.app_sales_y1)/10000).toFixed(1) + "億" : "?"}\n\n## 成長戦略\n- 目標年：${hearingData.target_year || appData.app_target_year_achieve || "?"}\n- 戦略：${st.join("、") || "?"}\n- 市場：${hearingData.market || "?"}\n- 強み：${hearingData.competitive_advantage || "?"}\n- 課題：${hearingData.bottleneck || "?"}\n\n## 投資計画\n- 建物：${appData.app_inv_building ? (Number(appData.app_inv_building)/10000).toFixed(1)+"億" : "?"} / 機械：${appData.app_inv_equipment ? (Number(appData.app_inv_equipment)/10000).toFixed(1)+"億" : "?"} / SW：${appData.app_inv_software ? (Number(appData.app_inv_software)/10000).toFixed(1)+"億" : "?"}\n- 合計：${appInvCore > 0 ? (appInvCore/10000).toFixed(1)+"億" : "?"} ${appInvOk ? "✅" : "⚠"}\n- 内容：${hearingData.investment_detail || appData.app_inv_summary || "?"}\n\n## 賃上げ\n- 現在：${appData.app_wage_current || hearingData.avg_salary || "?"}万/年 → 3年後：${appData.app_wage_y3 || wageTarget || "?"}万/年（CAGR:${appWageCAGR > 0 ? appWageCAGR.toFixed(1) : "?"}%）\n\n## 経営者の想い\n${hearingData.vision || "?"}\n\n---\n作成物：1. 100億宣言書 2. 事業計画書（最大15枚）\n制度要件：補助率1/2、上限5億円、投資下限1億円（税抜）、賃上げ年率4.5%以上（役員除外）、プレゼン審査は経営者本人のみ`;
+    return `# 中小企業成長加速化補助金 申請書・100億宣言文 作成依頼
+
+## 企業基本情報
+- 会社名：${hearingData.company_name || appData.app_company || "（未入力）"}
+- 代表者：${hearingData.representative || appData.app_representative || "（未入力）"}
+- 業種：${hearingData.industry || "（未入力）"}
+- 従業員数：${hearingData.employees || appData.app_employee_count || "?"}名
+- 売上高：${hearingData.current_sales ? hearingData.current_sales + "億" : appData.app_sales_y1 ? (Number(appData.app_sales_y1)/10000).toFixed(1) + "億" : "？"}
+
+## 成長戦略・ロードマップ
+- 100億円達成目標年：${hearingData.target_year || appData.app_target_year_achieve || "？"}
+- 主な成長戦略：${st.join("、") || "（未入力）"}
+- 対象市場・トレンド：${hearingData.market || "（未入力）"}
+- 自社の強み・独自性：${hearingData.competitive_advantage || "（未入力）"}
+- 現在のボトルネック・課題：${hearingData.bottleneck || "（未入力）"}
+- 3年後までの具体的マイルストーン：${hearingData.roadmap_3year || "（未入力）"}
+- 5年後（100億達成時）の姿：${hearingData.roadmap_5year || "（未入力）"}
+- 今後12ヶ月の月次マイルストーン：${hearingData.monthly_milestones || "（未入力）"}
+
+## 100億宣言の要点（ドラフトに反映）
+- 宣言メッセージ（要約）：${hearingData.declaration_summary || "（未入力）"}
+- 宣言に盛り込みたいキーワード：${hearingData.declaration_keywords || "（未入力）"}
+- 顧客への価値・約束：${hearingData.declaration_story_customers || "（未入力）"}
+- 従業員に見せたい未来：${hearingData.declaration_story_employees || "（未入力）"}
+- 地域・社会へのインパクト：${hearingData.declaration_story_region || "（未入力）"}
+
+## 経営の日課・週間ルーティン
+- 経営陣の週間ルーティン：${hearingData.weekly_routine || "（未入力）"}
+- 経営者の日課・行動原則：${hearingData.daily_routine || "（未入力）"}
+
+## 投資計画（補助対象）
+- 建物費：${appData.app_inv_building ? (Number(appData.app_inv_building)/10000).toFixed(1) + "億" : "？"}
+- 機械装置費：${appData.app_inv_equipment ? (Number(appData.app_inv_equipment)/10000).toFixed(1) + "億" : "？"}
+- ソフトウェア費：${appData.app_inv_software ? (Number(appData.app_inv_software)/10000).toFixed(1) + "億" : "？"}
+- コア投資合計：${appInvCore > 0 ? (appInvCore/10000).toFixed(1) + "億" : "？"} ${appInvOk ? "✅（1億円超）" : "⚠（1億円未満の可能性）"}
+- 投資内容の詳細：${hearingData.investment_detail || appData.app_inv_summary || "（未入力）"}
+
+## 賃上げ計画
+- 現在の1人当たり給与：${appData.app_wage_current || hearingData.avg_salary || "？"}万/年
+- 3年後目標：${appData.app_wage_y3 || wageTarget || "？"}万/年
+- 年平均上昇率（CAGR）：${appWageCAGR > 0 ? appWageCAGR.toFixed(1) + "%" : "？"}
+
+## リスクとBプラン
+- 主なリスク：${hearingData.declaration_risks || "（未入力）"}
+- リスクへの対応方針（Bプラン）：${hearingData.declaration_risks_plan || hearingData.risk_plan || "（未入力）"}
+
+## 経営者の想い
+${hearingData.vision || "（未入力）"}
+
+---
+### 作成してほしいもの
+1. 「100億宣言」本文（ポータル掲載用）：上記「100億宣言の要点」を反映し、5つの構成要素（企業概要／目標と課題／具体的措置／実施体制／経営者のコミットメント）で日本語で作成してください。
+2. 「中小企業成長加速化補助金」事業計画書ドラフト（最大15枚相当の構成案）：市場分析→強み→ロードマップ→投資計画→収支→賃上げ→地域波及→リスク→体制、の順で見出しと要約本文を作成してください。
+
+### 制度要件（参考情報として踏まえてください）
+- 補助率1/2、上限5億円、投資下限1億円（税抜）
+- 賃上げ年率4.5%以上（役員除外、従業員1人当たり給与ベース）
+- プレゼン審査は経営者本人のみ参加（コンサル同席不可）`;
   }, [hearingData, appData, multiSelects, appInvCore, appInvOk, wageTarget, appWageCAGR]);
   const copyPrompt = () => {
     const text = adminPrompt && adminPrompt.trim().length > 0 ? adminPrompt : generatePrompt();
